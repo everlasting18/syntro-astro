@@ -30,3 +30,6 @@ package-lock.json
 # Local Netlify folder
 .netlify
 .vercel
+
+# PocketBase local data
+pb_data/

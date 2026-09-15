@@ -1,0 +1,98 @@
+<section>
+  <div class="px-8 py-32 mx-auto md:px-12 lg:px-24 max-w-7xl">
+    <div class="max-w-lg mx-auto text-center">
+      <h2
+        class="text-xl leading-tight tracking-tight sm:text-2xl md:text-3xl lg:text-4xl font-semibold text-base-900 lg:text-balance">
+        Get in touch
+      </h2>
+      <p class="text-base leading-normal mt-4 text-base-500 font-medium">
+        Send us a message and we'll get back to you.
+      </p>
+    </div>
+    <div data-contact class="mx-auto mt-12 max-w-lg">
+      <form class="flex flex-col gap-y-6">
+        <div>
+          <label for="contact-name" class="text-base leading-normal text-base-500 font-medium">
+            Name
+          </label>
+          <input
+            id="contact-name"
+            name="name"
+            type="text"
+            required
+            autocomplete="name"
+            placeholder="Your name"
+            class="mt-2.5 block w-full h-10 px-4 py-2 text-sm text-accent-700 duration-300 bg-white border border-transparent rounded-lg appearance-none ring-1 ring-base-200 placeholder-base-400 focus:border-base-300 focus:bg-transparent focus:outline-none focus:ring-accent-500 focus:ring-offset-2 focus:ring-2"
+          />
+        </div>
+        <div>
+          <label for="contact-email" class="text-base leading-normal text-base-500 font-medium">
+            Email
+          </label>
+          <input
+            id="contact-email"
+            name="email"
+            type="email"
+            required
+            autocomplete="email"
+            placeholder="Your email"
+            class="mt-2.5 block w-full h-10 px-4 py-2 text-sm text-accent-700 duration-300 bg-white border border-transparent rounded-lg appearance-none ring-1 ring-base-200 placeholder-base-400 focus:border-base-300 focus:bg-transparent focus:outline-none focus:ring-accent-500 focus:ring-offset-2 focus:ring-2"
+          />
+        </div>
+        <div>
+          <label for="contact-message" class="text-base leading-normal text-base-500 font-medium">
+            Message
+          </label>
+          <textarea
+            id="contact-message"
+            name="message"
+            required
+            rows="5"
+            placeholder="How can we help?"
+            class="mt-2.5 block w-full px-4 py-2 text-sm text-accent-700 duration-300 bg-white border border-transparent rounded-lg appearance-none ring-1 ring-base-200 placeholder-base-400 focus:border-base-300 focus:bg-transparent focus:outline-none focus:ring-accent-500 focus:ring-offset-2 focus:ring-2"
+          ></textarea>
+        </div>
+        <button
+          type="submit"
+          class="flex items-center justify-center transition-all duration-200 focus:ring-2 focus:outline-none text-white bg-accent-600 hover:bg-accent-700 disabled:opacity-60 focus:ring-accent-500/50 h-10 px-6 py-3 text-base font-medium rounded-lg w-full">
+          Send message
+        </button>
+      </form>
+      <p
+        data-form-status
+        hidden
+        aria-live="polite"
+        class="mt-4 text-sm data-[tone=success]:text-green-700 data-[tone=error]:text-red-600">
+      </p>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { pb, isPocketBaseConfigured } from "../../lib/pocketbase";
+  import { setFormStatus, MISSING_CONFIG_MESSAGE } from "../../lib/formStatus";
+
+  const root = document.querySelector<HTMLElement>("[data-contact]");
+  const form = root?.querySelector("form");
+
+  form?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (!root) return;
+    if (!isPocketBaseConfigured) {
+      setFormStatus(root, "error", MISSING_CONFIG_MESSAGE);
+      return;
+    }
+    const data = new FormData(form);
+    setFormStatus(root, "submitting");
+    try {
+      await pb.collection("messages").create(
+        { name: data.get("name"), email: data.get("email"), message: data.get("message") },
+        { requestKey: null },
+      );
+      form.reset();
+      setFormStatus(root, "success", "Thanks — your message has been sent.");
+    } catch {
+      setFormStatus(root, "error", "Your message could not be sent. Please try again.");
+    }
+  });
+</script>

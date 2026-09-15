@@ -1,74 +1,62 @@
-# SaaS & Startup Astro & Tailwind CSS Template
+# Syntro for PocketBase Cloud
 
-## License
+A SaaS and startup landing page built with Astro and Tailwind CSS, with a real
+backend: newsletter sign-ups, a contact form, and a changelog you edit in
+PocketBase.
 
-This template is open-source software licensed under the [GPL-3.0 license](https://opensource.org/licenses/GPL-3.0). You are free to fork, modify, and use it in your projects.
+## Credits and licence
 
-## Attribution
+Syntro was originally created by Michael Andreuzza and modified and extended by
+Bektur Aslan ([upstream](https://github.com/bekturaslan/syntro-astro)). This
+version adds PocketBase wiring and is distributed under the same
+[GPL-3.0 licence](LICENSE).
 
-Originally created by Michael Andreuzza. Modified, extended, and redistributed by Bektur Aslan with added sections and updated UI/UX for broader usage.
+## What is inside
 
-## This template is using Tailwind CSS V4
+| Path | Purpose |
+| --- | --- |
+| `db/pb_migrations` | `subscribers`, `messages`, and `changelog` collections with API rules, plus two sample changelog entries |
+| `web/` | The Astro site. `src/lib/pocketbase.ts` creates the client from `PUBLIC_POCKETBASE_URL` |
 
-Now we are using only a CSS file. It's called `global.css` and it's located in the src/styles folder. Now we are eimporting Tailwind CSS on the same file instead of using the `tailwind.config.cjs` file. Like this:
+- **Newsletter** — the footer form creates a `subscribers` record. Anyone can
+  subscribe; only superusers can read the list, and duplicate emails are
+  rejected.
+- **Contact** — `/contact` creates a `messages` record, readable only by
+  superusers.
+- **Changelog** — `/changelog` loads published `changelog` records in the
+  browser, so edits in the dashboard show up without a redeploy.
+- **Login / Sign up** — design-only pages from upstream, ready for you to wire
+  to PocketBase auth.
 
-```css
-// Importing Tailwind CSS
-@import "tailwindcss";
-// Importing Tailwind plugins
-@plugin "@tailwindcss/typography";
-@plugin "@tailwindcss/forms";
+## Deploy to PocketBase Cloud
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/pocketbasecloud/cli/main/scripts/install.sh | sh
+pbc login
+
+cd db
+pbc deploy --name syntro-db
+pbc pocketbase info --name syntro-db   # copy the instance URL
+
+cd ../web
+PUBLIC_POCKETBASE_URL=https://<id>.<compute>.pocketbasecloud.com pbc deploy --name syntro-web
 ```
 
-Then to add your styles you will use the @theme directive. Like this:
+The URL is baked into the site at build time; redeploy `web` after changing it.
 
-```css
-@theme {
-  /* Your CSS goes here, see how styles are written on the global.css file */
-}
+## Run locally
+
+```bash
+pocketbase serve --dir db/pb_data --migrationsDir db/pb_migrations
+
+cd web
+cp .env.example .env
+pnpm install
+pnpm dev
 ```
 
-Remember this is just in Alpha version, so you can use it as you want. Just keep an eye on the changes that Tailwind CSS is going to make.
-
-## Template Structure
-
-Inside of your Astro project, you'll see the following folders and files:
-
-```
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
-```
-
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
-
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
-
-Any static assets, like images, can be placed in the `public/` directory.
-
-## Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                | Action                                           |
-| :--------------------- | :----------------------------------------------- |
-| `npm install`          | Installs dependencies                            |
-| `npm run dev`          | Starts local dev server at `localhost:3000`      |
-| `npm run build`        | Build your production site to `./dist/`          |
-| `npm run preview`      | Preview your build locally, before deploying     |
-| `npm run astro ...`    | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro --help` | Get help using the Astro CLI                     |
-
-## Want to learn more?
-
-Feel free to check Astro's [documentation](https://docs.astro.build)
-
-### Deploy
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/bekturaslan/syntro-astro)
-
----
-Maintained & updated by Bektur Aslan. Contributions welcome.
+| Command | Action |
+| --- | --- |
+| `pnpm dev` | Start the dev server |
+| `pnpm build` | Build to `web/dist/` |
+| `pnpm preview` | Preview the build |

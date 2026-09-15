@@ -1,0 +1,99 @@
+<section data-changelog>
+  <div class="px-8 py-32 mx-auto md:px-12 lg:px-24 max-w-3xl">
+    <h1 class="text-3xl lg:text-4xl font-semibold tracking-tight text-base-900">
+      Changelog
+    </h1>
+    <p class="mt-4 text-base text-base-500 font-medium">
+      New updates and improvements.
+    </p>
+
+    <div data-changelog-loading class="mt-12 flex flex-col gap-10" aria-hidden="true">
+      {
+        [0, 1].map(() => (
+          <div class="animate-pulse motion-reduce:animate-none">
+            <div class="h-3 w-24 rounded bg-base-100" />
+            <div class="mt-3 h-5 w-2/3 rounded bg-base-100" />
+            <div class="mt-3 h-3 w-full rounded bg-base-100" />
+          </div>
+        ))
+      }
+    </div>
+
+    <ol data-changelog-list class="mt-12 flex flex-col gap-12" hidden></ol>
+    <p data-changelog-empty hidden class="mt-12 text-base-500">
+      No updates published yet.
+    </p>
+    <p data-changelog-error hidden class="mt-12 text-red-600"></p>
+
+    <template data-changelog-entry>
+      <li class="border-b border-base-200 pb-12 last:border-0">
+        <div class="flex items-center gap-3 text-sm text-base-500">
+          <time data-field="date"></time>
+          <span
+            data-field="tag"
+            class="rounded-full bg-accent-50 px-2.5 py-0.5 text-xs font-medium text-accent-700">
+          </span>
+        </div>
+        <h2 data-field="title" class="mt-3 text-xl font-semibold text-base-900"></h2>
+        <div data-field="body" class="prose prose-sm mt-4 max-w-none text-base-600"></div>
+      </li>
+    </template>
+  </div>
+</section>
+
+<script>
+  import { pb, isPocketBaseConfigured } from "../../lib/pocketbase";
+  import { MISSING_CONFIG_MESSAGE } from "../../lib/formStatus";
+
+  const root = document.querySelector<HTMLElement>("[data-changelog]");
+  const list = root?.querySelector<HTMLOListElement>("[data-changelog-list]");
+  const loading = root?.querySelector<HTMLElement>("[data-changelog-loading]");
+  const empty = root?.querySelector<HTMLElement>("[data-changelog-empty]");
+  const errorMessage = root?.querySelector<HTMLElement>("[data-changelog-error]");
+  const entryTemplate = root?.querySelector<HTMLTemplateElement>("template[data-changelog-entry]");
+
+  const showError = (message: string) => {
+    if (loading) loading.hidden = true;
+    if (errorMessage) {
+      errorMessage.textContent = message;
+      errorMessage.hidden = false;
+    }
+  };
+
+  const renderEntries = async () => {
+    if (!list || !entryTemplate) return;
+    if (!isPocketBaseConfigured) {
+      showError(MISSING_CONFIG_MESSAGE);
+      return;
+    }
+    try {
+      const entries = await pb.collection("changelog").getFullList({ sort: "-created" });
+      for (const entry of entries) {
+        const item = entryTemplate.content.cloneNode(true) as DocumentFragment;
+        const field = (name: string) => item.querySelector<HTMLElement>(`[data-field="${name}"]`);
+        const date = field("date");
+        if (date) {
+          date.textContent = new Date(entry.created).toLocaleDateString(undefined, { dateStyle: "long" });
+          date.setAttribute("datetime", entry.created);
+        }
+        const tag = field("tag");
+        if (tag) {
+          tag.textContent = entry.tag;
+          tag.hidden = !entry.tag;
+        }
+        const title = field("title");
+        if (title) title.textContent = entry.title;
+        const body = field("body");
+        if (body) body.innerHTML = entry.body;
+        list.append(item);
+      }
+      if (loading) loading.hidden = true;
+      list.hidden = entries.length === 0;
+      if (empty) empty.hidden = entries.length > 0;
+    } catch {
+      showError("Updates could not be loaded. Please try again later.");
+    }
+  };
+
+  renderEntries();
+</script>
