@@ -39,10 +39,12 @@ pbc deploy --name syntro-db
 pbc pocketbase info --name syntro-db   # copy the instance URL
 
 cd ../web
-PUBLIC_POCKETBASE_URL=https://<id>.<compute>.pocketbasecloud.com pbc deploy --name syntro-web
+PUBLIC_POCKETBASE_URL=https://<id>.<compute>.pocketbasecloud.com pbc deploy frontend --name syntro-web
 ```
 
 The URL is baked into the site at build time; redeploy `web` after changing it.
+Set `PUBLIC_SITE_URL` to the site's public address as well to get absolute
+canonical and Open Graph URLs and a sitemap.
 
 ## Run locally
 

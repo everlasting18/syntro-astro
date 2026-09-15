@@ -16,5 +16,10 @@ import { Font } from "astro:assets";
     <Navigation />
     <main class="grow"><slot /></main>
     <Footer />
+    <script>
+      import Alpine from "alpinejs";
+
+      Alpine.start();
+    </script>
   </body>
 </html>

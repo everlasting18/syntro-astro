@@ -11,6 +11,7 @@
     "astro": "astro"
   },
   "dependencies": {
+    "alpinejs": "^3.15.0",
     "pocketbase": "^0.28.1"
   },
   "devDependencies": {

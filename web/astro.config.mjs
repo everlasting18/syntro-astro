@@ -1,9 +1,12 @@
 import { defineConfig, fontProviders } from "astro/config";
 import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
+import { loadEnv } from "vite";
+
+const { PUBLIC_SITE_URL } = loadEnv(process.env.NODE_ENV ?? "production", process.cwd(), "");
 
 export default defineConfig({
-  site: "https://yoursite.com",
+  site: PUBLIC_SITE_URL || undefined,
   fonts: [
     {
       provider: fontProviders.google(),
