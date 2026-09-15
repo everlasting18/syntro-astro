@@ -1,0 +1,14 @@
+{
+  "build": {
+    "pbMigrations": "pb_migrations"
+  },
+  "projectId": "YOUR_PROJECT_ID",
+  "kind": "pocketbases",
+  "defaultEnvironment": "production",
+  "environments": {
+    "production": {
+      "id": "YOUR_INSTANCE_ID",
+      "name": "syntro-pocketbase"
+    }
+  }
+}

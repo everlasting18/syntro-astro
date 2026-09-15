@@ -58,18 +58,53 @@ pbc project use syntro
 
 ### Deploy the database
 
-`Pocketbase-Cloud/` holds only `pb_migrations`, which is how `pbc deploy` recognises a
-PocketBase instance.
+`Pocketbase-Cloud/` holds only `pb_migrations`. Deploy it as a PocketBase
+instance:
 
 ```bash
 cd Pocketbase-Cloud
-pbc deploy --name syntro-pocketbase
+pbc pocketbase deploy --name syntro-pocketbase
 ```
+
+`pbc deploy --name syntro-pocketbase` does the same thing — it sees
+`pb_migrations` and runs `pbc pocketbase deploy` for you — but naming the kind
+keeps the command unambiguous.
 
 The first deploy creates the instance, uploads the migrations, and restarts it
 so they run: the three collections, their API rules, and two sample changelog
 entries exist as soon as it is up. When it asks about an env file, choose not to
 push one — this template needs none on the database.
+
+### The pbc.json file
+
+The first deploy writes `pbc.json` in the directory. It links the directory to
+the project and the resource the deploy created, and records how to package it,
+so later commands there need no `--name`. `Pocketbase-Cloud/pbc.json.example`
+and `Syntro/pbc.json.example` show its shape:
+
+```json
+{
+  "build": { "pbMigrations": "pb_migrations" },
+  "projectId": "YOUR_PROJECT_ID",
+  "kind": "pocketbases",
+  "defaultEnvironment": "production",
+  "environments": {
+    "production": { "id": "YOUR_INSTANCE_ID", "name": "syntro-pocketbase" }
+  }
+}
+```
+
+| Field | Meaning |
+| --- | --- |
+| `build` | What to package: `pbMigrations` for PocketBase; `command` and `outputDir` for the frontend |
+| `projectId` | The project the resource belongs to — see `pbc project ls` |
+| `kind` | `pocketbases` or `frontends`, so `pbc deploy` never guesses again |
+| `defaultEnvironment` | The environment a deploy targets when you pass no `--env` |
+| `environments.<env>.id` / `.name` | The resource that environment deploys to — see `pbc pocketbase ls` or `pbc frontend ls` |
+
+The ids belong to your account, so `pbc.json` is listed in `.gitignore` and
+only the examples are committed. Don't copy an example into place: deploy once
+and let the CLI write the real file.
 
 ### Find the URL and the superuser login
 
@@ -125,7 +160,7 @@ and redeploy:
 
 ```bash
 cd Pocketbase-Cloud
-pbc deploy
+pbc pocketbase deploy
 ```
 
 New migrations are merged with the ones already on the instance and applied by
@@ -286,7 +321,7 @@ pnpm dev
 | --- | --- |
 | `pbc login` / `pbc whoami` | Log in and show the current account |
 | `pbc project create <name>` / `pbc project use <name>` | Create a project and make it the default |
-| `pbc deploy --name syntro-pocketbase` | Deploy `Pocketbase-Cloud/` as a PocketBase instance |
+| `pbc pocketbase deploy --name syntro-pocketbase` | Deploy `Pocketbase-Cloud/` as a PocketBase instance |
 | `pbc deploy frontend --name syntro` | Deploy `Syntro/` as a static site |
 | `pbc pocketbase info --name syntro-pocketbase` | Instance URL, version, and superuser login |
 | `pbc frontend info --name syntro` | Site URL |
