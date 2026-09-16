@@ -11,22 +11,53 @@ Bektur Aslan ([upstream](https://github.com/bekturaslan/syntro-astro)). This
 version adds PocketBase wiring and is distributed under the same
 [GPL-3.0 licence](LICENSE).
 
-## What is inside
+## Overview
 
-| Path | Purpose |
-| --- | --- |
-| `Pocketbase-Cloud/pb_migrations` | `subscribers`, `messages`, and `changelog` collections with API rules, plus two sample changelog entries |
-| `Syntro/` | The Astro site. `src/lib/pocketbase.ts` creates the client from `PUBLIC_POCKETBASE_URL` |
+Syntro is a landing page for SaaS products and startups: a hero, feature
+sections, a three-step "how it works", a pricing table with a monthly/annual
+toggle, testimonials, an FAQ, and legal pages. This version keeps that design
+and adds a PocketBase backend, so the forms and the changelog store real data
+instead of only looking the part.
 
-- **Newsletter** — the footer form creates a `subscribers` record. Anyone can
-  subscribe; only superusers can read the list, and duplicate emails are
-  rejected.
-- **Contact** — `/contact` creates a `messages` record, readable only by
-  superusers.
-- **Changelog** — `/changelog` loads published `changelog` records in the
-  browser, so edits in the dashboard show up without a redeploy.
-- **Login / Sign up** — design-only pages from upstream, ready for you to wire
-  to PocketBase auth.
+## Key features
+
+- **Newsletter sign-ups** — the footer form writes to a `subscribers`
+  collection. Anyone can subscribe; only superusers can read the list, and a
+  repeat address is told it is already subscribed.
+- **Contact form** — `/contact` writes to a `messages` collection, readable
+  only by superusers.
+- **Changelog from the dashboard** — `/changelog` loads published entries in
+  the browser, so writing an entry in PocketBase publishes it without a
+  redeploy. Two sample entries ship with the migrations.
+- **Schema as migrations** — the collections, their API rules, and the samples
+  are files in `pb_migrations`, so a fresh deploy always comes up complete.
+- **Eight pages** — landing, changelog, contact, FAQ, login, sign up, terms,
+  and privacy.
+- **Astro 7 and Tailwind CSS v4** — static output, no UI framework. Alpine.js
+  drives the mobile menu and the pricing toggle and ships with the bundle.
+- **Login and sign up** — design-only pages, ready for you to wire to
+  PocketBase auth.
+
+## Template structure
+
+```text
+syntro-astro/
+├── Pocketbase-Cloud/            # deploy this as a PocketBase instance
+│   └── pb_migrations/           # collections, API rules, sample entries
+└── Syntro/                      # deploy this as a static site
+    ├── .env.example             # PUBLIC_POCKETBASE_URL, PUBLIC_SITE_URL
+    ├── astro.config.mjs
+    └── src/
+        ├── components/
+        │   ├── Forms/           # Contact, Login, Signup
+        │   ├── global/          # Navigation, Footer, Testimonial
+        │   ├── infopages/       # Changelog, Faq, Terms, Privacy
+        │   └── landing/         # Hero, pricing, and the other sections
+        ├── layouts/             # BaseLayout
+        ├── lib/                 # pocketbase.ts, formStatus.ts
+        ├── pages/               # one route per file
+        └── styles/              # global.css, Tailwind theme
+```
 
 ## 1. Before you start
 
