@@ -42,21 +42,21 @@ instead of only looking the part.
 
 ```text
 syntro-astro/
-├── Pocketbase-Cloud/            # deploy this as a PocketBase instance
-│   └── pb_migrations/           # collections, API rules, sample entries
-└── Syntro/                      # deploy this as a static site
-    ├── .env.example             # PUBLIC_POCKETBASE_URL, PUBLIC_SITE_URL
+├── Pocketbase-Cloud/        # deploy as a PocketBase instance
+│   └── pb_migrations/       # collections, rules, samples
+└── Syntro/                  # deploy as a static site
+    ├── .env.example         # build-time variables
     ├── astro.config.mjs
     └── src/
         ├── components/
-        │   ├── Forms/           # Contact, Login, Signup
-        │   ├── global/          # Navigation, Footer, Testimonial
-        │   ├── infopages/       # Changelog, Faq, Terms, Privacy
-        │   └── landing/         # Hero, pricing, and the other sections
-        ├── layouts/             # BaseLayout
-        ├── lib/                 # pocketbase.ts, formStatus.ts
-        ├── pages/               # one route per file
-        └── styles/              # global.css, Tailwind theme
+        │   ├── Forms/       # Contact, Login, Signup
+        │   ├── global/      # Navigation, Footer, Testimonial
+        │   ├── infopages/   # Changelog, Faq, Terms, Privacy
+        │   └── landing/     # Hero, pricing, other sections
+        ├── layouts/         # BaseLayout
+        ├── lib/             # pocketbase.ts, formStatus.ts
+        ├── pages/           # one route per file
+        └── styles/          # global.css, Tailwind theme
 ```
 
 ## 1. Before you start
