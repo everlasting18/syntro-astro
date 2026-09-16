@@ -62,13 +62,17 @@ instance:
 
 ```bash
 cd Pocketbase-Cloud
-pbc pocketbase deploy --name syntro-pocketbase
+pbc pocketbase deploy --new syntro-pocketbase
 ```
 
-The first deploy creates the instance, uploads the migrations, and restarts it
-so they run: the three collections, their API rules, and two sample changelog
-entries exist as soon as it is up. When it asks about an env file, choose not to
-push one — this template needs none on the database.
+`--new` creates an instance with that name and fails if the name is taken;
+`--name` picks an existing one to redeploy. This first deploy links the
+directory, so later deploys from it need neither.
+
+It uploads the migrations and restarts the instance so they run: the three
+collections, their API rules, and two sample changelog entries exist as soon as
+it is up. When it asks about an env file, choose not to push one — this
+template needs none on the database.
 
 ### The pbc.json file
 
@@ -151,8 +155,10 @@ bare `pbc deploy` would guess it is a backend.
 ```bash
 cd Syntro
 PUBLIC_POCKETBASE_URL=https://<id>.<compute>.pocketbasecloud.com \
-  pbc deploy frontend --name syntro
+  pbc deploy frontend --new syntro
 ```
+
+`--new` creates the site; a later deploy from this directory needs no flag.
 
 The CLI installs dependencies, runs `pnpm run build`, uploads `dist/`, and waits
 for HTTPS. Find the site address afterwards with:
@@ -178,14 +184,22 @@ To avoid retyping it, put the variables in `Syntro/.env` (see
 
 ## 4. Run locally
 
-Download PocketBase from [pocketbase.io](https://pocketbase.io/docs/), then:
+`pbc local init` downloads a PocketBase binary for your machine and pins its
+version in `pbc.json`. It never overwrites what is already there, so the
+migrations are left alone; it adds a starter `pb_hooks/`, a `README.md`, and a
+`.gitignore` that excludes the binary and `pb_data/`.
 
 ```bash
-pocketbase serve --dir Pocketbase-Cloud/pb_data --migrationsDir Pocketbase-Cloud/pb_migrations
+cd Pocketbase-Cloud
+pbc local init
+./pocketbase serve
 ```
 
-The first start prints a link for creating a local superuser; the dashboard is
-at `http://127.0.0.1:8090/_/`. In a second terminal:
+`serve` applies the migrations in `pb_migrations`, so the collections and the
+sample changelog entries are there on the first start. It prints a link for
+creating a local superuser; the dashboard is at `http://127.0.0.1:8090/_/`.
+
+In a second terminal:
 
 ```bash
 cd Syntro
@@ -200,7 +214,8 @@ pnpm dev
 | --- | --- |
 | `pbc login` | Log in to PocketBase Cloud |
 | `pbc project create syntro` / `pbc project use syntro` | Create the project and make it the default |
-| `pbc pocketbase deploy --name syntro-pocketbase` | Deploy `Pocketbase-Cloud/` as a PocketBase instance |
+| `pbc pocketbase deploy --new syntro-pocketbase` | Deploy `Pocketbase-Cloud/` as a new PocketBase instance |
 | `pbc pocketbase info --name syntro-pocketbase` | Instance URL and superuser login |
-| `pbc deploy frontend --name syntro` | Build and deploy `Syntro/` as a static site |
+| `pbc deploy frontend --new syntro` | Build and deploy `Syntro/` as a new static site |
+| `pbc local init` | Download a PocketBase binary for local development |
 | `pbc frontend info --name syntro` | Site URL |
